@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+	<OutputType>Exe</OutputType>
+	<TargetFramework>net7.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Problems\*\*\*.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Problems\*\*\*.csv">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Remove="Problems\AOC2023\Day1\example2.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Problems\AOC2023\Day1\example1.txt" />
+	  <None Remove="Problems\AOC2023\Day1\example2.txt" />
+	  <None Remove="problems\aoc2023\day2\example1.txt" />
+	  <None Remove="problems\aoc2023\day2\input.txt" />
+	  <None Remove="problems\aoc2023\day3\example1.txt" />
+	  <None Remove="problems\aoc2023\day3\input.txt" />
+	  <None Remove="problems\aoc2023\day4\example1.txt" />
+	  <None Remove="problems\aoc2023\day4\input.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Problems\AOC2023\Day1\example2.txt">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+</Project>
