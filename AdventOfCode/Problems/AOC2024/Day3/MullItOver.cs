@@ -17,16 +17,24 @@ namespace AdventOfCode.Problems.AOC2024.Day3
             {
                 var input = inputs[i];
 
-                var c = Regex.Matches(input, @"mul\(\d+\,\d+\)");
+                var matches = Regex.Matches(input, @"mul\(\d+\,\d+\)");
 
-                result += Calculate(c);
+                result += Calculate(matches);
             }
             Part1 = result;
         }
 
         public override void CalculatePart2()
         {
-            throw new NotImplementedException();
+            var result = 0;
+            var input = String.Join("", inputs);
+            // remove all don't errors
+            input = Regex.Replace(input, @"don't\(\)[\x21-\x7F\ \n]*?(?=do\(\))", "");
+            // get matched collection
+            var matches = Regex.Matches(input, @"mul\(\d+\,\d+\)");
+            
+            result += Calculate(matches);
+            Part2 = result;
         }
 
         public override void LoadInput()
