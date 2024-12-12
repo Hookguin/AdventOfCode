@@ -19,69 +19,32 @@ namespace AdventOfCode.Problems.AOC2024.Day2
         {
             for (int i = 0; i < inputs.Length; i++) 
             {
-                var curReport = inputs[i];
-                
-                var levelList = curReport.Split(" ").Select(n => int.Parse(n)).ToArray();
-                var type = Type.same;
-                var skip = false;
-
-                for (int j = 0; j < levelList.Length - 1; j++)
-                {
-                    var cur = levelList[j];
-                    var next = levelList[j + 1];
-
-                    if (Math.Abs(cur - next) > 3)
-                    {
-                        skip = true;
-                        break;
-                    }
-
-                    // decrease
-                    if (cur > next)
-                    {
-                        if (type == Type.incr)
-                        {
-                            skip = true;
-                            break;
-                        }
-                        type = Type.decr;
-                    }
-                    if (cur < next)
-                    {
-                        if (type == Type.decr)
-                        {
-                            skip = true;
-                            break;
-                        }
-                        type = Type.incr;
-                    }
-                    if (cur == next)
-                    {
-                        skip = true;
-                        break;
-                    }
-                }
-                if (skip == true)
-                    continue;
-
-                IsSafe++;
+                var input = inputs[i].Split(" ").Select(s => int.Parse(s)).ToList();
+                var hasFailed = HasFailedLevelsV2(input, out int location);
+                if (!hasFailed)
+                    IsSafe++;
             }
             Part1 = IsSafe;
         }
 
         public override void CalculatePart2()
         {
-            var skip = false;
             var isSafe = 0;
 
+            var successsList = new List<string>();
+            var failList = new List<string>();
             for (int i = 0; i < inputs.Length; i++)
             {
-                var input = inputs[i];
-                var levels = input.Split(" ").Select(s => int.Parse(s)).ToList();
+                var input = inputs[i].Split(" ").Select(s => int.Parse(s)).ToList();
+                var skip = ShouldSkipV2(input);
 
-                skip = ShouldSkip(levels);
                 if (!skip)
+                {
                     isSafe++;
+                    successsList.Add(inputs[i]);
+                }
+                else
+                    failList.Add(inputs[i]);
             }
             Part2 = isSafe;
         }
@@ -90,70 +53,42 @@ namespace AdventOfCode.Problems.AOC2024.Day2
         {
             inputs = ReadInputLines();
             //inputs = ReadInputLines("example.txt");
+            //inputs = ReadInputLines("example2.txt");
         }
 
-        public bool ShouldSkip(List<int> input, bool failedBefore = false) 
+        public bool ShouldSkipV2(List<int> input, bool hasFailed = false)
         {
-            var newList = new List<int>();
-            for (int i = 0; i < input.Count - 1; i++)
-            {
-                var curLv = input[i];
-                var nextLv = input[i + 1];
-                newList.Add(curLv - nextLv);
-            }
+            //var hasProblem = HasFailedLevels(report, out int location);
+            var hasProblem = HasFailedLevelsV2(input, out int location);
 
-            var failCount = 0;
-            if (newList.Any(n => n < 0))
+            if (hasProblem) 
             {
-                var neg = newList.Where(n => n < 0).Count();
-                
-                if (newList.Count - neg == 1)
-                {
-                    var n = newList.IndexOf(newList.Where(n => n >= 0).First());
-                    newList.RemoveAt(n);
-                    input.RemoveAt(n + 1);
-                }
-                
-                if (neg != newList.Count)
-                    return true;
-            }
-
-            for (int i = 0; i < newList.Count; i++) 
-            {
-                newList[i] = Math.Abs(newList[i]);
-            }
-
-            failCount = newList.Where(n => Math.Abs(n) == 0 || Math.Abs(n) > 3).Count();
-
-            if (failCount > 1)
-                return true;
-            if (failCount == 1)
-            {
-                if (failedBefore)
+                if (hasFailed)
                     return true;
 
-                var failedIndex = newList.IndexOf(newList.Where(n => n > 3 || n == 0).First());
-
+                // check for failure at moment of failure
                 var atList = new List<int>(input);
-                atList.RemoveAt(failedIndex);
-                var at = ShouldSkip(atList, true);
+                atList.RemoveAt(location);
+                var at = ShouldSkipV2(atList, true);
 
-                bool be = true;
-                if (failedIndex > 0)
+                // check for failure 1 level before
+                var be = true;
+                var beList = new List<int>(input);
+                if (location > 0)
                 {
-                    var beList = new List<int>(input);
-                    beList.RemoveAt(failedIndex - 1);
-                    be = ShouldSkip(beList, true);
+                    beList.RemoveAt(location - 1);
+                    be = ShouldSkipV2(beList, true);
                 }
 
-                bool af = true;
-                if (failedIndex < input.Count - 1)
+                // check for failure 1 level after
+                var af = true;
+                var afList = new List<int>(input);
+                if (location < input.Count - 1)
                 {
-                    var afList = new List<int>(input);
-                    afList.RemoveAt(failedIndex + 1);
-                    af = ShouldSkip(afList, true);
+                    afList.RemoveAt(location + 1);
+                    af = ShouldSkipV2(afList, true);
                 }
-
+                
                 if (at == false || be == false || af == false)
                     return false;
                 else
@@ -162,11 +97,92 @@ namespace AdventOfCode.Problems.AOC2024.Day2
             return false;
         }
 
+        public bool HasFailedLevelsV2(List<int> input, out int failedLocation)
+        {
+            failedLocation = 0;
+            var dir = Type.unset;
+
+            for (int i = 0; i < input.Count - 1; i++)
+            {
+                var curLv = input[i];
+                var nextLv = input[i + 1];
+                var res = curLv - nextLv;
+
+                if (Math.Abs(res) > 3 || res == 0)
+                {
+                    failedLocation = i + 1;
+                    return true;
+                }
+                if (dir == Type.unset)
+                    dir = res > 0 ? Type.decr : Type.incr;
+
+                if (dir == Type.decr && res < 0)
+                {
+                    failedLocation = i + 1;
+                    return true;
+                }
+                if (dir == Type.incr && res > 0)
+                {
+                    failedLocation = i + 1;
+                    return true; 
+                }
+            }
+            return false;
+        }
+
+        public bool HasFailedLevels(List<int> input, out int failedLocation)
+        {
+            failedLocation = 0;
+            var direction = Type.unset;
+
+            var newList = new List<int>();
+            for (int i = 0; i < input.Count - 1; i++)
+            {
+                var curLv = input[i];
+                var nextLv = input[i + 1];
+                var res = curLv - nextLv;
+                
+                // check if currrent difference is over 3
+                if (Math.Abs(res) > 3 || res == 0)
+                {
+                    failedLocation = i + 1;
+                    return true;
+                }
+                
+                // set inital direction 
+                if (direction == Type.unset)
+                    direction = res > 0 ? Type.decr : Type.incr;
+
+                newList.Add(res);
+            }
+            // check if everything fits the condition all increasing or all decreasing
+            if (newList.Any(n => n < 0))
+            {
+                var neg = newList.Where(n => n < 0).Count();
+
+                if (direction == Type.incr && neg != newList.Count)
+                {
+                    // find index of the first positive number
+                    var pIndex = newList.IndexOf(newList.Where(n => n >= 0).First());
+                    failedLocation = pIndex + 1;
+                    return true;
+                }
+                if (direction == Type.decr)
+                {
+                    // find index of the first negative number
+                    var nIndex = newList.IndexOf(newList.Where(n => n < 0).First());
+                    failedLocation = nIndex + 1;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public enum Type
         {
             incr,
             decr,
-            same
+            unset
         }
     }
 }
