@@ -16,6 +16,7 @@ namespace AdventOfCode.Problems.AOC2024.Day6
         public override void CalculatePart1()
         {
             var index = -1;
+            var start = -1;
             for (int i = 0; i < inputs.Length; i++)
             {
                 var input = inputs[i];
@@ -23,9 +24,18 @@ namespace AdventOfCode.Problems.AOC2024.Day6
 
                 if (index == -1)
                     continue;
+
+                start = i - 1;
             }
 
+            var keepGoing = true;
+            var direction = Direction.up;
 
+            do
+            {
+                switch()
+            }
+            while (keepGoing);
 
             throw new NotImplementedException();
         }
@@ -40,10 +50,11 @@ namespace AdventOfCode.Problems.AOC2024.Day6
             inputs = ReadInputLines();
         }
 
-        public bool GoingUp(int index, int start, out int stoppedRow)
+        public bool GoingUp(int index, int start, out (int row, int column) result)
         {
             var isStopped = false;
-            stoppedRow = -1;
+            result.row = start;
+            result.column = index;
 
             for (int i = start; i >= 0; i--)
             {
@@ -52,7 +63,7 @@ namespace AdventOfCode.Problems.AOC2024.Day6
                 if (curC == '#')
                 {
                     isStopped = true;
-                    stoppedRow = i + 1;
+                    result.row = i + 1;
                     break;
                 }
                 curC = 'x';
@@ -60,10 +71,11 @@ namespace AdventOfCode.Problems.AOC2024.Day6
             return isStopped;
         }
 
-        public bool GoingRight(int index, int start, out int stoppedColumn)
+        public bool GoingRight(int index, int start, out (int row, int column) result)
         {
             var isStopped = false;
-            stoppedColumn = -1;
+            result.row = start;
+            result.column = index;
 
             for (int i = index; i < inputs[start].Length; i++)
             {
@@ -72,7 +84,7 @@ namespace AdventOfCode.Problems.AOC2024.Day6
                 if (curC == '#')
                 {
                     isStopped = true;
-                    stoppedColumn = i - 1;
+                    result.column = i - 1;
                     break;
                 }
                 curC = 'x';
@@ -80,10 +92,11 @@ namespace AdventOfCode.Problems.AOC2024.Day6
             return isStopped;
         }
 
-        public bool GoingDown(int index, int start, out int stoppedRow)
+        public bool GoingDown(int index, int start, out (int row, int column) result)
         {
             var isStopped = false;
-            stoppedRow = -1;
+            result.row = start;
+            result.column = index;
 
             for (int i = start; i < inputs.Length; i++)
             {
@@ -92,7 +105,7 @@ namespace AdventOfCode.Problems.AOC2024.Day6
                 if (curC == '#')
                 {
                     isStopped = true;
-                    stoppedRow = i - 1;
+                    result.row = i - 1;
                     break;
                 }
                 curC = 'x';
@@ -100,10 +113,11 @@ namespace AdventOfCode.Problems.AOC2024.Day6
             return isStopped;
         }
 
-        public bool GoingLeft(int index, int start, out int stoppedColumn)
+        public bool GoingLeft(int index, int start, out (int row, int column) result)
         {
             var isStopped = false;
-            stoppedColumn = -1;
+            result.row = start;
+            result.column = index;
 
             for (int i = start; i >= 0; i--)
             {
@@ -112,7 +126,7 @@ namespace AdventOfCode.Problems.AOC2024.Day6
                 if (curC == '#')
                 {
                     isStopped = true;
-                    stoppedColumn = i - 1;
+                    result.column = i - 1;
                     break;
                 }
                 curC = 'x';
