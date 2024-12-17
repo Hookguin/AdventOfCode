@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AdventOfCode.Runner;
+﻿using AdventOfCode.Runner;
 using AdventOfCode.Runner.Attributes;
 
 namespace AdventOfCode.Problems.AOC2024.Day6
@@ -11,20 +6,21 @@ namespace AdventOfCode.Problems.AOC2024.Day6
     [ProblemInfo(2024, 06, "Guard Gallivant")]
     internal class GuardGallivant : Problem<int, int>
     {
-        public string[] inputs = Array.Empty<string>();
+        public string[] Inputs = Array.Empty<string>();
 
         public override void CalculatePart1()
         {
             var index = -1;
             var start = -1;
-            for (int i = 0; i < inputs.Length; i++)
+            for (int i = 0; i < Inputs.Length; i++)
             {
-                var input = inputs[i];
-                index = input.IndexOf("^");
+                var input = Inputs[i];
+                var indexOf = input.IndexOf('^');
 
-                if (index == -1)
+                if (indexOf == -1)
                     continue;
 
+                index = indexOf;
                 start = i - 1;
             }
 
@@ -33,11 +29,52 @@ namespace AdventOfCode.Problems.AOC2024.Day6
 
             do
             {
-                switch()
+                switch(direction)
+                {
+                    case Direction.up:
+                        keepGoing = GoingUp(index, start, out var up);
+                        if (keepGoing)
+                        {
+                            direction = Direction.right;
+                            index = up.column;
+                            start = up.row;
+                        }
+                        break;
+
+                    case Direction.right:
+                        keepGoing = GoingRight(index, start, out var right);
+                        if (keepGoing)
+                        {
+                            direction = Direction.down;
+                            index = right.column;
+                            start = right.row;
+                        }
+                        break;
+
+                    case Direction.down:
+                        keepGoing = GoingDown(index, start, out var down);
+                        if (keepGoing)
+                        {
+                            direction = Direction.left;
+                            index = down.column;
+                            start = down.row;
+                        }
+                        break;
+
+                    case Direction.left:
+                        keepGoing = GoingLeft(index, start, out var left);
+                        if (keepGoing)
+                        {
+                            direction = Direction.up;
+                            index = left.column;
+                            start = left.row;
+                        }
+                        break;
+                }
             }
             while (keepGoing);
 
-            throw new NotImplementedException();
+            Part1 = CountX();
         }
 
         public override void CalculatePart2()
@@ -47,7 +84,22 @@ namespace AdventOfCode.Problems.AOC2024.Day6
 
         public override void LoadInput()
         {
-            inputs = ReadInputLines();
+            Inputs = ReadInputLines();
+            //Inputs = ReadInputLines("example.txt");
+        }
+
+        public int CountX()
+        {
+            var result = 0;
+            for (int i = 0; i < Inputs.Length; i++) 
+            {
+                var input = Inputs[i];
+                var xCount = input.Count(c => c == 'x');
+                result += xCount;
+            }
+            // to include the starting point
+            result += 1;
+            return result;
         }
 
         public bool GoingUp(int index, int start, out (int row, int column) result)
@@ -58,15 +110,15 @@ namespace AdventOfCode.Problems.AOC2024.Day6
 
             for (int i = start; i >= 0; i--)
             {
-                var curC = inputs[i][index];
-                
-                if (curC == '#')
+                if (Inputs[i][index] == '#')
                 {
                     isStopped = true;
                     result.row = i + 1;
                     break;
                 }
-                curC = 'x';
+                var newString = Inputs[i].ToCharArray();
+                newString[index] = 'x';
+                Inputs[i] = new string(newString);
             }
             return isStopped;
         }
@@ -77,17 +129,17 @@ namespace AdventOfCode.Problems.AOC2024.Day6
             result.row = start;
             result.column = index;
 
-            for (int i = index; i < inputs[start].Length; i++)
+            for (int i = index; i < Inputs[start].Length; i++)
             {
-                var curC = inputs[start][index];
-
-                if (curC == '#')
+                if (Inputs[start][i] == '#')
                 {
                     isStopped = true;
                     result.column = i - 1;
                     break;
                 }
-                curC = 'x';
+                var newString = Inputs[start].ToCharArray();
+                newString[i] = 'x';
+                Inputs[start] = new string(newString);
             }
             return isStopped;
         }
@@ -98,17 +150,17 @@ namespace AdventOfCode.Problems.AOC2024.Day6
             result.row = start;
             result.column = index;
 
-            for (int i = start; i < inputs.Length; i++)
+            for (int i = start; i < Inputs.Length; i++)
             {
-                var curC = inputs[i][index];
-
-                if (curC == '#')
+                if (Inputs[i][index] == '#')
                 {
                     isStopped = true;
                     result.row = i - 1;
                     break;
                 }
-                curC = 'x';
+                var newString = Inputs[i].ToCharArray();
+                newString[index] = 'x';
+                Inputs[i] = new string(newString);
             }
             return isStopped;
         }
@@ -119,17 +171,17 @@ namespace AdventOfCode.Problems.AOC2024.Day6
             result.row = start;
             result.column = index;
 
-            for (int i = start; i >= 0; i--)
+            for (int i = index; i >= 0; i--)
             {
-                var curC = inputs[start][index];
-            
-                if (curC == '#')
+                if (Inputs[start][i] == '#')
                 {
                     isStopped = true;
-                    result.column = i - 1;
+                    result.column = i + 1;
                     break;
                 }
-                curC = 'x';
+                var newString = Inputs[start].ToCharArray();
+                newString[i] = 'x';
+                Inputs[start] = new string(newString);
             }
             return isStopped;
         }
