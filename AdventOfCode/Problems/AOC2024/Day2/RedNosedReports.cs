@@ -1,11 +1,5 @@
-﻿using System.IO.IsolatedStorage;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.ConstrainedExecution;
-using AdventOfCode.Runner;
+﻿using AdventOfCode.Runner;
 using AdventOfCode.Runner.Attributes;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AdventOfCode.Problems.AOC2024.Day2
 {
@@ -134,54 +128,6 @@ namespace AdventOfCode.Problems.AOC2024.Day2
                 {
                     failedLocation = i + 1;
                     return true; 
-                }
-            }
-            return false;
-        }
-
-        public bool HasFailedLevels(List<int> input, out int failedLocation)
-        {
-            failedLocation = 0;
-            var direction = Type.unset;
-
-            var newList = new List<int>();
-            for (int i = 0; i < input.Count - 1; i++)
-            {
-                var curLv = input[i];
-                var nextLv = input[i + 1];
-                var res = curLv - nextLv;
-                
-                // check if currrent difference is over 3
-                if (Math.Abs(res) > 3 || res == 0)
-                {
-                    failedLocation = i + 1;
-                    return true;
-                }
-                
-                // set inital direction 
-                if (direction == Type.unset)
-                    direction = res > 0 ? Type.decr : Type.incr;
-
-                newList.Add(res);
-            }
-            // check if everything fits the condition all increasing or all decreasing
-            if (newList.Any(n => n < 0))
-            {
-                var neg = newList.Where(n => n < 0).Count();
-
-                if (direction == Type.incr && neg != newList.Count)
-                {
-                    // find index of the first positive number
-                    var pIndex = newList.IndexOf(newList.Where(n => n >= 0).First());
-                    failedLocation = pIndex + 1;
-                    return true;
-                }
-                if (direction == Type.decr)
-                {
-                    // find index of the first negative number
-                    var nIndex = newList.IndexOf(newList.Where(n => n < 0).First());
-                    failedLocation = nIndex + 1;
-                    return true;
                 }
             }
             return false;
