@@ -88,8 +88,17 @@ namespace AdventOfCode.Problems.AOC2024.Day2
                     afList.RemoveAt(location + 1);
                     af = ShouldSkipV2(afList, true);
                 }
-                
-                if (at == false || be == false || af == false)
+
+                // check for failure 2 levels before
+                var be2 = true;
+                var be2List = new List<int>(input);
+                if (location > 1)
+                {
+                    be2List.RemoveAt(location - 2);
+                    be2 = ShouldSkipV2(be2List, true);
+                }
+
+                if (at == false || be == false || af == false || be2 == false)
                     return false;
                 else
                     return true;
